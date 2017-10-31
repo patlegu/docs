@@ -33,6 +33,10 @@ In this guide, you will learn the basic workflow to speed up your Continuous Int
 
         sudo apt update && sudo apt upgrade
 
+4. Install dependencies:
+
+        sudo apt install python-pip unzip !!!!!
+
 {: .note}
 > The steps in this guide require root privileges. Be sure to run the steps below as `root` or with the `sudo` prefix. For more information on privileges, see our [Users and Groups](/docs/tools-reference/linux-users-and-groups) guide.
 
@@ -50,9 +54,7 @@ This guide is oriented toward DevOps professionals and thus presumes:
 
 5. Docker installation will be needed, please read our [guide](https://www.linode.com/docs/applications/containers/how-to-install-docker-and-pull-images-for-container-deployment) for detailed instructions.
 
-6. Java installation might be needed, please read our guide [Install Java on Ubuntu 16.04](https://www.linode.com/docs/development/install-java-on-ubuntu-16-04) for more information.
-
-7. For the purpose of this guide a basic Python application will be used to showcase Jenkins automation, similar procedures can be used for other development languages.
+6. For the purpose of this guide a basic Python application will be used to showcase Jenkins automation, similar procedures can be used for other development languages.
 
 
 ## Install Jenkins and Blue Ocean Plugin
@@ -65,18 +67,24 @@ Jenkins offers many installation options:
 
 ### Workstation Installation
 
-For local development and testing the first two options make a lot of sense because they need very little extra configuration. To install Jenkins self-executable just:
+For local development and testing the first two options make a lot of sense because they need very little extra configuration. To install the Jenkins self-executable:
 
 1. Download the `jenkins.war` to a suitable location, in this example the `home` directory is being used:
 
         cd ~
         wget http://mirrors.jenkins.io/war-stable/latest/jenkins.war
 
-2. Run the executable with the following command (you can change the port as needed):
+2. You will need Java in order to run Jenkins using this method:
+
+        add-apt-repository ppa:webupd8team/java
+        apt-get update
+        apt-get install oracle-java8-installer
+
+3. Run the executable with the following command (you can change the port as needed):
 
         java -jar jenkins.war --httpPort=8080
 
-3. In your browser load Jenkins using the address: [http://localhost:8080](http://localhost:8080)
+4. In your browser load Jenkins using the address: [http://localhost:8080](http://localhost:8080)
 
 If you prefer to use a Docker image then:
 
@@ -88,7 +96,8 @@ If you prefer to use a Docker image then:
 
         sudo docker run --name=jenkins -d -p 8080:8080 jenkins/jenkins
 
-This container will be accessible using the same address on your browser [http://localhost:8080](http://localhost:8080
+This container will be accessible using the same address on your browser [http://localhost:8080](http://localhost:8080).
+
 
 ### Linode Installation
 
@@ -106,7 +115,7 @@ Arguably, the best option for a stand-alone Linode installation is using the ser
 
         sudo apt update
 
-4. Install Jenkins in your Linode:
+4. Install Jenkins on your Linode:
 
         sudo apt install jenkins
 
@@ -130,9 +139,7 @@ On the other hand, if you prefer to install the most recent Jenkins build then u
 
         sudo systemctl enable jenkins
 
-8. Reboot your server to apply all changes, specially group permissions.
-
-        sudo reboot
+8. Using the Linode Manager, reboot your server to apply all changes.
 
 9. Use your browser to navigate to default server address:
 
@@ -148,61 +155,64 @@ On the other hand, if you prefer to install the most recent Jenkins build then u
 
 1. Up to this point, you end up with Jenkins web application running at port `8080`. The first screen you should see would be similar to this:
 
-    ![Unlocking Jenkins](/docs/assets/jenkins-unlock.png)
+    ![Unlocking Jenkins](/docs/assets/jenkins/jenkins-unlock.png)
 
-2. Copy the temporally administrator password.
+2. Copy the temporary administrator password:
 
         sudo cat /var/lib/jenkins/secrets/initialAdminPassword
 
+      {:.note}
+      > If you are using Docker, you can find the password in the logs by running `sudo docker logs jenkins`.
+
 3. Paste the password and click **Continue**, you will be presented with the following screen:
 
-    ![Customize Jenkins](/docs/assets/jenkins-customize.png)
+    ![Customize Jenkins](/docs/assets/jenkins/jenkins-customize.png)
 
 4. Choose **Install suggested plugins** to start downloading the standard plugins:
 
-    ![Standard Plugins](/docs/assets/jenkins-standard-plugins.png)
+    ![Standard Plugins](/docs/assets/jenkins/jenkins-standard-plugins.png)
 
 5. Once the plugin process is finished you will be asked to create a new administrative user:
 
-    ![First Admin User](/docs/assets/jenkins-admin-user.png)
+    ![First Admin User](/docs/assets/jenkins/jenkins-admin-user.png)
 
 6. If everything goes without errors you will see:
 
-    ![Jenkins Ready](/docs/assets/jenkins-ready.png)
+    ![Jenkins Ready](/docs/assets/jenkins/jenkins-ready.png)
 
 7. Click on **Start using Jenkins** to display the application dashboard:
 
-    ![Jenkins Main Dashboard](/docs/assets/jenkins-dashboard.png)
+    ![Jenkins Main Dashboard](/docs/assets/jenkins/jenkins-dashboard.png)
 
 8. As mentioned earlier, this guide will use the new Blue Ocean interface so you will need to click in the **Manage Jenkins** link on the sidebar:
 
-    ![Manage Jenkins link](/docs/assets/jenkins-manage-sidebar.png)
+    ![Manage Jenkins link](/docs/assets/jenkins/jenkins-manage-sidebar.png)
 
 9. A new menu with Jenkins configuration options will appear, click on **Manage Plugins** to  install Blue Ocean.
 
-    ![Manage Plugins link](/docs/assets/jenkins-manage-plugins.png)
+    ![Manage Plugins link](/docs/assets/jenkins/jenkins-manage-plugins.png)
 
 10. Now click on **Available** tab and filter the results searching for Blue Ocean.
 
-    ![Filter Plugins](/docs/assets/jenkins-filter-plugins.png)
+    ![Filter Plugins](/docs/assets/jenkins/jenkins-filter-plugins.png)
 
 11. Check the box corresponding to Blue Ocean plugin and then click at the botton on **Install without restart**.
 
-    ![Install Blue Ocean](/docs/assets/jenkins-bo-box.png)
+    ![Install Blue Ocean](/docs/assets/jenkins/jenkins-bo-box.png)
 
 12. You should see the installation progress. Once is finished click the **Go back to the top page** link and then click on the **Open Blue Ocean** link on the sidebar.
 
-    ![Blue Ocean link](/docs/assets/jenkins-bo-link.png)
+    ![Blue Ocean link](/docs/assets/jenkins/jenkins-bo-link.png)
 
 13. The new Blue Ocean Dashboard will greet you.
 
-    ![Blue Ocean Dashboard](/docs/assets/jenkins-bo-dashboard.png)
+    ![Blue Ocean Dashboard](/docs/assets/jenkins/jenkins-bo-dashboard.png)
 
 ## Understanding How Jenkins Works
 
 Before starting using your newly installed Blue Ocean Dashboard, it's necessary to understand the basic CI/CD work flow. The following image illustrates it:
 
-![Blue Ocean Workflow](/docs/assets/jenkins-workflow.jpg)
+![Blue Ocean Workflow](/docs/assets/jenkins/jenkins-workflow.jpg)
 
 As you can see the most basic process consist of three phases: build - test -deploy. Each time you make changes on your distributed version control system you trigger an automation cycle on the Jenkins server. The entire set of instructions for running the process is on the `Jenkinsfile` located at the root of your source repository. That single file tells the server "what" to do, "when" to do it and "how" you want those tasks to be performed.
 
@@ -215,19 +225,19 @@ Jenkins offers two kind of approaches for the `Jenkinsfile` syntax:
 
 Both have support for continuous delivery and Jenkins plugins. Scripted syntax is based on Groovy programming environment so is more complete and offer almost no limitations, on the other hand Declarative syntax "was created to offer a simpler and more opinionated syntax for authoring Jenkins Pipeline" and thus is intended for less complex everyday automation builds. You can learn more about syntax comparison on the Jenkins documentation [here.](https://jenkins.io/doc/book/pipeline/syntax/#compare)
 
-This guide will use the Declarative syntax to illustrate Jenkins processes because it's designed to be easier to implement and understand.  
+This guide will use the Declarative syntax to illustrate Jenkins processes because it's designed to be easier to implement and understand.
 
 ### Jenkinsfile structure
 
 Declarative Pipeline syntax is very intuitive, the most basic layout would be as the one shown below:
 
-![Basic Declarative Syntax](/docs/assets/jenkins-declarative-syntax-basics.png)
+![Basic Declarative Syntax](/docs/assets/jenkins/jenkins-declarative-syntax-basics.png)
 
-`pipeline`: all files should start with this declaration at the top. Indicates the start of the new Pipeline.
-`agent`: defines the working environment, usually a Docker image. The `any` statement indicates the pipeline can use any available agent.
-`stages`: this block is a collection of `stage` directives.
-`stage`: groups one or more "steps". You can use as many stages as needed, this is useful when you are working in complex models that need detailed debugging "per stage".
-`steps`: here you define your actions. A stage can group many steps, each step is usually linked to one specific task/command.
+  - `pipeline`: all files should start with this declaration at the top. Indicates the start of the new Pipeline.
+  - `agent`: defines the working environment, usually a Docker image. The `any` statement indicates the pipeline can use any available agent.
+  - `stages`: this block is a collection of `stage` directives.
+  - `stage`: groups one or more "steps". You can use as many stages as needed, this is useful when you are working in complex models that need detailed debugging "per stage".
+  - `steps`: here you define your actions. A stage can group many steps, each step is usually linked to one specific task/command.
 
 Code blocks are delimited by brackets {}. No semi-colons are used, each statement has to be in its own line. The heart of the `Jenkinsfile` are the steps you perform, because they represent a "call to action". Common steps are:
 
@@ -275,7 +285,7 @@ This guide will use a Python application to illustrate the Jenkins workflow. Ple
 
 The Python example used for this guide has the classic structure:
 
-![Application Structure](/docs/assets/jenkins-application-tree)
+![Application Structure](/docs/assets/jenkins/jenkins-application-tree)
 
 - Consists in only one module.
 - Have its own basic test suite.
@@ -308,7 +318,7 @@ The easier way to debug this simple application is using a virtual environment `
 
         pythonapp-msg
 
-    ![Application Output](/docs/assets/jenkins-app-msg.png)
+    ![Application Output](/docs/assets/jenkins/jenkins-app-msg.png)
 
 Now you have a tested application ready for deployment. You can deactivate your virtual environment and return to home folder.
 
@@ -427,31 +437,31 @@ Right now you only have an empty repository. To start working with Blue Ocean yo
 
 5. Click on "Create New Pipeline".
 
-    ![Create new pipeline](/docs/assets/jenkins-bo-dashboard.png)
+    ![Create new pipeline](/docs/assets/jenkins/jenkins-bo-dashboard.png)
 
 6. A new screen will load asking which SCM you want to use, choose GitHub.
 
-    ![GitHub pipeline](/docs/assets/jenkins-bo-gh-pipeline.png)
+    ![GitHub pipeline](/docs/assets/jenkins/jenkins-bo-gh-pipeline.png)
 
 7. You will be asked to connect with your GitHub account by means of an access key, click on the link to create that key.
 
-    ![GitHub connect](/docs/assets/jenkins-bo-gh-connect.png)
+    ![GitHub connect](/docs/assets/jenkins/jenkins-bo-gh-connect.png)
 
 8. Next you will need to login to your GitHub account, give a description to the Token and generate it. You will be presented with a screen similar to this.
 
-    ![GitHub token](/docs/assets/jenkins-bo-gh-token.png)
+    ![GitHub token](/docs/assets/jenkins/jenkins-bo-gh-token.png)
 
 9. Copy the token value and then paste it on the Blue Ocean tab, click on **Connect** button.
 
-    ![GitHub authentication BO](/docs/assets/jenkins-bo-token.png)
+    ![GitHub authentication BO](/docs/assets/jenkins/jenkins-bo-token.png)
 
 10. If you have Organizations along with your personal account then you will need to choose where is your repository.
 
-    ![GitHub Organization](/docs/assets/jenkins-bo-organizations.png)
+    ![GitHub Organization](/docs/assets/jenkins/jenkins-bo-organizations.png)
 
 11. After choosing your repository location, click on the **Create Pipeline** button. That will trigger your first build automatically.
 
-    ![First Build](/docs/assets/jenkins-bo-first-build.png)
+    ![First Build](/docs/assets/jenkins/jenkins-bo-first-build.png)
 
 You now can review each stage, and click on any step to view the details. You can also edit your pipeline directly through Blue Ocean and commit the changes back to your GitHub repository.
 
@@ -461,7 +471,7 @@ Jenkins application has many options to play with. And if what you need is custo
 
 First setting to change should be the time interval for scanning GitHub repository. Click on the gear icon right to the Pipeline name.
 
-![Interval Time](/docs/assets/jenkins-bo-gear.png)
+![Interval Time](/docs/assets/jenkins/jenkins-bo-gear.png)
 
 A new tab will open showing you many Pipeline settings. Scroll down to the section **Scan Repository Triggers** and check the box "Periodically if not otherwise run"
 
